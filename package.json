@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "cypress": "^13.17.0",
+    "http-server": "^14.1.1"
+  },
+  "scripts": {
+    "start": "http-server ./ui-test-assessment-master",
+    "cypress:open": "cypress open"
+  }
+}
