@@ -4,45 +4,42 @@ describe('Validate cities on table', () => {
   beforeEach(() => {
     cy.visit('http://localhost:8080/employees.html')
   })
-  it ('Should load the page properly', () => {
+  it ('Page loads properly', () => {
     cy.contains('Login')
     cy.get('#treeGrid').should('exist')
     cy.get('#form').should('be.visible')
 
   })
   
-  it ('Should display the cities on the grid', () =>{
+  it('Cities are displayed on the grid', () =>{
     const expectedCities = ['Tacoma', 'Seattle', 'Kirkland', 'Redmond', 'London', '']
     
-    cy.get('#treeGrid')
-      .contains('Steven')
-      .siblings('.jqx-tree-grid-collapse-button')
-      .click()
+    cy.expandTreeButton('Steven')
 
     cy.get('#jqxScrollThumbhorizontalScrollBartreeGrid') 
-    .trigger('mousedown', { which: 1 })  
-    .trigger('mousemove', { clientX: 600, clientY: 0 }) 
-    .trigger('mouseup')
+      .trigger('mousedown', { which: 1 })  
+      .trigger('mousemove', { clientX: 600, clientY: 0 }) 
+      .trigger('mouseup')
 
     const foundCities = new Set()
 
-  cy.get('#treeGrid')
-    .find('tr') 
-    .each(($row) => {
-      cy.wrap($row)
-        .find('td') 
-        .last() 
-        .invoke('text')
-        .then((cityText) => {
-          foundCities.add(cityText.trim()) 
-        })
-    })
-    .then(() => {
-      expectedCities.forEach((city) => {
-        expect(foundCities.has(city)).to.be.true
+    cy.get('#treeGrid')
+      .find('tr') 
+      .each(($row) => {
+        cy.wrap($row)
+          .find('td') 
+          .last() 
+          .invoke('text')
+          .then((cityText) => {
+            foundCities.add(cityText.trim()) 
+          })
       })
+      .then(() => {
+        expectedCities.forEach((city) => {
+          expect(foundCities.has(city)).to.be.true
+      })
+    })
   })
-})
 })
 
 describe('Checkbox scenarios', () => {
@@ -59,10 +56,7 @@ describe('Checkbox scenarios', () => {
   })
 
   it ('Select all employees', () => {
-    cy.get('#treeGrid')
-      .contains('Steven')
-      .siblings('.jqx-tree-grid-collapse-button')
-      .click()
+    cy.expandTreeButton('Steven')
 
     let selectedEmployees = [];
 
@@ -88,7 +82,7 @@ describe('Checkbox scenarios', () => {
           })
 
           cy.get('#btn')
-      .click()
+            .click()
  
     cy.get('#listBoxSelected')
       .find('.jqx-listitem-state-normal') 
@@ -101,5 +95,25 @@ describe('Checkbox scenarios', () => {
       })
   })
 
-  it('Null cities only')
-})
+  it('Null cities only', () => {
+
+    cy.expandTreeButton('Steven')
+
+    cy.get('#treeGrid')
+      .find('tr') 
+      .then(($rows) => {
+        const emptyCityRow = $rows.toArray().find(row => {
+          const cityText = Cypress.$(row).find('td').eq(3).text().trim()
+          return cityText === ''
+        })
+      if (emptyCityRow) {
+        cy.wrap(emptyCityRow)
+          .find('.jqx-tree-grid-checkbox') 
+          .click();
+        cy.get('#btn')
+          .click()
+        cy.get('#listBoxContentlistBoxSelected')
+          .should('contain', null) 
+          }})
+        })
+      })
